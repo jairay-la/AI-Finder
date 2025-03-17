@@ -4,6 +4,9 @@ from flask import Flask, request, render_template_string
 from dotenv import load_dotenv
 import os
 
+# Initialize Flask app
+app = Flask(__name__)
+
 # Load environment variables
 load_dotenv()
 ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY')
@@ -39,14 +42,14 @@ def query_attom(zip_code):
     except requests.exceptions.RequestException as e:
         return f"Request Error: {str(e)}"
 
-def analyze_gems(properties):
-    if isinstance(properties, str):
-        return properties
+def analyze_gems(data):
+    if isinstance(data, str):
+        return data
     
     prompt = f"""
     You're a real estate investor analyzing properties in this area.
-    Here's a list of properties with their basic information:
-    {properties}
+    Here's a list of properties with detailed information:
+    {data}
     
     Identify the top 3 properties based on:
     - Location value and potential
@@ -68,8 +71,6 @@ def analyze_gems(properties):
         messages=[{"role": "user", "content": prompt}]
     )
     return response.content
-
-app = Flask(__name__)
 
 # HTML template
 HTML_TEMPLATE = """
@@ -106,15 +107,14 @@ HTML_TEMPLATE = """
 @app.route("/", methods=["GET", "POST"])
 def home():
     analysis = None
-    zip_code = None
     try:
         if request.method == "POST":
             zip_code = request.form["zip_code"]
-            properties = query_attom(zip_code)
-            analysis = analyze_gems(properties)
+            data = query_attom(zip_code)
+            analysis = analyze_gems(data)
     except Exception as e:
         analysis = f"Error processing request: {str(e)}"
-    return render_template_string(HTML_TEMPLATE, analysis=analysis, zip_code=zip_code)
+    return render_template_string(HTML_TEMPLATE, analysis=analysis, zip_code=request.form.get("zip_code", ""))
 
 if __name__ == "__main__":
     port = int(os.getenv('PORT', 5000))
