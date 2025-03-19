@@ -1,1 +1,1 @@
-web: python property_finder.py
+web: python app.py
