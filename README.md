@@ -14,4 +14,4 @@ A Python tool that leverages ATTOM Data Solutions and Anthropic's Claude AI to a
 1. Clone the repository
 2. Install required packages:
 ```bash
-pip install requests anthropic python-dotenv
+pip install -r requirements.txt
